@@ -30,7 +30,16 @@ def create_user():
 
 @app.route('/ios/api/v1/select/<user_id>', methods=['GET']) 
 def response(user_id):
-	return jsonify(psqldb.select(user_id))
+	api_call = psqldb.select(user_id)
+	for users in api_call:
+		if not api_call[users]:
+			resp = jsonify({"message":"no user found"})
+			resp.status_code = 404
+			return resp
+			
+	return jsonify(api_call)
+	
+	
 
 @app.route('/ios/api/v1/list_all', methods=['GET']) 
 def list():

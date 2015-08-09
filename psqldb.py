@@ -44,7 +44,9 @@ def create_schema(new_table_name):
 		if extracted_key(table) == new_table_name:
 			conn.commit()
 			conn.close()
-			return jsonify({"message":"table already exists"})
+			resp = jsonify({"message":"table already exists"})
+			resp.status_code = 404
+			return resp
 	
 	cursor.execute('''
 		Create table {0}(
@@ -68,7 +70,7 @@ def insert(uid, lname, fname, password):
 	 
 	verify = select(uid)
 	
-	if not verify:
+	if not verify['users']:
 		cursor.execute(query_string);
 		conn.commit()
 		conn.close()
