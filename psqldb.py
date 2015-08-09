@@ -81,7 +81,6 @@ def insert(uid, lname, fname, password):
 		resp = jsonify({"message":"uid already exists"}) #revisit
 		resp.status_code = 404
 		return resp
-		return resp
 
 def select(uid):
 	conn = connect()
@@ -107,3 +106,22 @@ def list_all():
 	keys = cursor.fetchall()
 			
 	return jsonify(dictionary(values, keys))
+	
+def delete(uid):
+	conn = connect()
+	cursor = conn.cursor()
+	query_string = "DELETE from user_db where uid='{0}'". format(uid)
+	
+	verify = select(uid)
+	
+	if not verify['users']: # if no user found.
+		conn.commit()
+		conn.close()
+		resp = jsonify({"message":"no rows affected -- user not found"}) 
+		resp.status_code = 404
+		return resp
+	else:
+		cursor.execute(query_string);
+		conn.commit()
+		conn.close()
+		return jsonify({"message":"user deleted"})

@@ -12,8 +12,8 @@ def index():
 # curl -i -H "Content-Type: application/json" -X POST -d  '{"uid":"btaylor@wpi.edu", "lname":"taylor", "fname":"bruce", "password":darkknight"}' http://localhost:3001/ios/api/v1/user
 # ?uid=<uid_param>&lname=<lname_param>&fname=<fname_param>&password=<password_param>
 @app.route('/ios/api/v1/user', methods=['POST'])
-def create_user():
-
+def api_user_control():
+	
 	if len(request.args) == 4:
 		print 'we win!!'
 		'''
@@ -27,17 +27,23 @@ def create_user():
 	resp.status_code = 404
 	return resp
 	
+	
 
-@app.route('/ios/api/v1/select/<user_id>', methods=['GET']) 
+@app.route('/ios/api/v1/select/<user_id>', methods=['GET', 'DELETE']) 
 def response(user_id):
-	api_call = psqldb.select(user_id)
-	for users in api_call:
-		if not api_call[users]:
-			resp = jsonify({"message":"no user found"})
-			resp.status_code = 404
-			return resp
-			
-	return jsonify(api_call)
+	if request.method == 'GET':
+		api_call = psqldb.select(user_id)
+		for users in api_call:
+			if not api_call[users]:
+				resp = jsonify({"message":"no user found"})
+				resp.status_code = 404
+				return resp
+				
+		return jsonify(api_call)
+	
+	elif request.method == 'DELETE':
+		return psqldb.delete(user_id)
+		
 	
 	
 
