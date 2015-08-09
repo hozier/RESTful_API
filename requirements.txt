@@ -11,11 +11,9 @@ py2app==0.7.3
 pyOpenSSL==0.13.1
 pyparsing==2.0.1
 requests==2.7.0
-vboxapi==1.0
 virtualenv==13.1.0
 Werkzeug==0.10.4
 xattr==0.6.4
 zope.interface==4.1.1
 gunicorn==19.3.0
 whitenoise==1.0.6
-
