@@ -74,7 +74,7 @@ def insert(uid, lname, fname, password):
 		cursor.execute(query_string);
 		conn.commit()
 		conn.close()
-		return jsonify(verify)
+		return jsonify({"message":"new user created"})
 	else:
 		conn.commit()
 		conn.close()
