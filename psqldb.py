@@ -2,7 +2,6 @@ import os
 import psycopg2
 import urlparse
 from flask import jsonify
-import random
  
 def connect():
 	os.environ["DATABASE_URL"] = "postgres://ehaxtcxuugahlv:6vv92WKuRCvNV6-1gMHlbbeOMM@ec2-54-83-10-210.compute-1.amazonaws.com:5432/d5cd7ej8t9fbns"
