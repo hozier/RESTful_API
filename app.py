@@ -7,9 +7,7 @@ app = Flask(__name__)
 
 @app.route('/ios/api/v1/create_db')
 def index():
-	psqldb.create_schema()
-	psqldb.print_response(cursor)
-	return "{'init': {'conn_string':ok, 'schema':ok}"
+	return psqldb.create_schema('user_db')
 	
 # curl -i -H "Content-Type: application/json" -X POST -d  '{"uid":"btaylor@wpi.edu", "lname":"taylor", "fname":"bruce", "password":darkknight"}' http://localhost:3001/ios/api/v1/user
 # ?uid=<uid_param>&lname=<lname_param>&fname=<fname_param>&password=<password_param>

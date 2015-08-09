@@ -15,44 +15,50 @@ def connect():
 	    port=url.port
 	)
 	
-	print connect
 	return connect
 
-
+def extracted_key(raw):
+	import re
+	return " ".join(re.findall("[a-zA-Z_]+", str(raw)))
+	
 def dictionary(values, keys):
-	data = {}
-	index = 0
+	data = []
 	if not values:
 		data = {}
 	elif len(values[0]) == len(keys):
 		for row in values:
 			a_user_record = {}
 			for i in range(len(keys)):
-				import re
-				extracted_key = " ".join(re.findall("[a-zA-Z]+", str(keys[i])))
-				a_user_record[extracted_key] = row[i]
-			data["ID{0}".format(index)] = (a_user_record)
-			index+=1
+				a_user_record[extracted_key(keys[i])] = row[i]
+			data.append(a_user_record)
 			
-	return data
+	return {"users":data}
 	
 	
 ''' overview: returns cursor object'''
-def create_schema():
+def create_schema(new_table_name):
 	conn = connect()
-	cursor = conn.cursor()
+	cursor = conn.cursor() 
+	cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'") # lists just the table(s) that the admin creates.
+	for table in cursor.fetchall():
+		if extracted_key(table) == new_table_name:
+			conn.commit()
+			conn.close()
+			return jsonify({"message":"table already exists"})
+	
 	cursor.execute('''
-		Create table user_db(
+		Create table {0}(
 		uid text primary key		not null,
 		lname text 				not null,
 		fname text 				not null,
 		password text			not null
 		);
 		
-	''')
+	''' . format(new_table_name))
 	
 	conn.commit()
 	conn.close()
+	return jsonify({"message":"new table created."})
 	
 def insert(uid, lname, fname, password):
 	conn = connect()
@@ -70,7 +76,7 @@ def insert(uid, lname, fname, password):
 	else:
 		conn.commit()
 		conn.close()
-		return jsonify({"Message":"uid already exists"}) #revisit
+		return jsonify({"message":"uid already exists"}) #revisit
 
 def select(uid):
 	conn = connect()
