@@ -66,7 +66,7 @@ def insert(uid, lname, fname, password):
 	conn = connect()
 	cursor = conn.cursor()
 	query_string = "INSERT INTO user_db (uid,lname,fname,password) \
-      VALUES ('{0}', '{1}', '{2}', '{3}' )".format(uid, lname, fname, password)
+      VALUES ('{0}', '{1}', '{2}', '{3}')".format(uid, lname, fname, password)
 	 
 	verify = select(uid)
 	

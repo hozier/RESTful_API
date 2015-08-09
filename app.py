@@ -21,7 +21,7 @@ def create_user():
 			requests.post("http://localhost:3001/ios/api/v1/user", params=payload)
 			payload = {"lname":"thanks", "fname":"cold", "password":"cmit"}
 		'''
-		return psqldb.insert(request.args.get('uid'), request.args.get('lname'), request.args.get('fname'), request.args.get('param'))
+		return psqldb.insert(request.args.get('uid'), request.args.get('lname'), request.args.get('fname'), request.args.get('password'))
  	 
 	resp = jsonify({'message':'All fields must have values.'})
 	resp.status_code = 404
