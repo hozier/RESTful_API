@@ -78,7 +78,10 @@ def insert(uid, lname, fname, password):
 	else:
 		conn.commit()
 		conn.close()
-		return jsonify({"message":"uid already exists"}) #revisit
+		resp = jsonify({"message":"uid already exists"}) #revisit
+		resp.status_code = 404
+		return resp
+		return resp
 
 def select(uid):
 	conn = connect()
