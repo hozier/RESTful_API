@@ -78,6 +78,18 @@ def insert(uid, lname, fname, password):
 		conn.close()
 		return jsonify({"message":"uid already exists"}), 404
 
+def login(uid, password):
+	conn = connect()
+	cursor = conn.cursor()
+	if select(uid)['users'] == uid:
+		if select(uid)['password'] == password:
+			conn.commit()
+			conn.close()
+			return jsonify({"message":"user and password verified"})
+	conn.commit()
+	conn.close()
+	return jsonify({"message":"login unsuccessful"}), 404
+	
 def select(uid):
 	conn = connect()
 	cursor = conn.cursor()

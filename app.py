@@ -47,6 +47,14 @@ def response(user_id):
 def list():
 	return psqldb.list_all()
 	
+	
+@app.route('/ios/api/v1/login', methods=['POST'])
+def api_login_control():
+	if len(request.args) == 2:
+		return psqldb.login(request.args.get('uid'), request.args.get('password'))
+		
+	return jsonify({'message':'All fields must have values.'}), 404
+		
 if __name__ == '__main__':
 	app.run(port=3001, debug=True)
 	
