@@ -42,8 +42,7 @@ def create_schema(new_table_name):
 	cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'") # lists just the table(s) that the admin creates.
 	for table in cursor.fetchall():
 		if extracted_key(table) == new_table_name:
-			conn.commit()
-			conn.close()
+			end(conn)
 			return jsonify({"message":"table already exists"}), 404
 	
 	cursor.execute('''
@@ -56,8 +55,7 @@ def create_schema(new_table_name):
 		
 	''' . format(new_table_name))
 	
-	conn.commit()
-	conn.close()
+	end(conn)
 	return jsonify({"message":"new table created."})
 	
 def insert(uid, lname, fname, password):
@@ -70,12 +68,10 @@ def insert(uid, lname, fname, password):
 	
 	if not verify['users']:
 		cursor.execute(query_string);
-		conn.commit()
-		conn.close()
+		end(conn)
 		return jsonify({"message":"new user created"})
 	else:
-		conn.commit()
-		conn.close()
+		end(conn)
 		return jsonify({"message":"uid already exists"}), 404
 
 def login(uid, password):
@@ -84,11 +80,9 @@ def login(uid, password):
 	print 
 	if select(uid)['users'][0]["uid"] == uid:
 		if select(uid)['users'][0]['password'] == password:
-			conn.commit()
-			conn.close()
+			end(conn)
 			return jsonify({"message":"user and password verified"})
-	conn.commit()
-	conn.close()
+	end(conn)
 	return jsonify({"message":"login unsuccessful"}), 404
 	
 def select(uid):
@@ -124,11 +118,13 @@ def delete(uid):
 	verify = select(uid)
 	
 	if not verify['users']: # if no user found.
-		conn.commit()
-		conn.close()
+		end(conn)
 		return jsonify({"message":"no rows affected -- user not found"}), 404
 	else:
 		cursor.execute(query_string);
+		end(conn)
+		return jsonify({"message":"user deleted"})
+
+def end(conn):
 		conn.commit()
 		conn.close()
-		return jsonify({"message":"user deleted"})
