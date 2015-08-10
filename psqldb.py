@@ -81,8 +81,9 @@ def insert(uid, lname, fname, password):
 def login(uid, password):
 	conn = connect()
 	cursor = conn.cursor()
-	if select(uid)['users'] == uid:
-		if select(uid)['password'] == password:
+	print 
+	if select(uid)['users'][0]["uid"] == uid:
+		if select(uid)['users'][0]['password'] == password:
 			conn.commit()
 			conn.close()
 			return jsonify({"message":"user and password verified"})
