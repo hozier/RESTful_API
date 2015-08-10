@@ -1,6 +1,5 @@
 from flask import Flask, jsonify, request, abort
 import psqldb 
-import requests
 
 
 app = Flask(__name__)

@@ -104,10 +104,12 @@ def list_all():
 	query_string = "select * from user_db "
 	cursor.execute(query_string)
 	values = cursor.fetchall()
+	
 	query_string = "SELECT column_name FROM information_schema.columns WHERE table_name ='user_db'"
 	cursor.execute(query_string)
 	keys = cursor.fetchall()
-			
+	end(conn)	
+		
 	return jsonify(dictionary(values, keys))
 	
 def delete(uid):
