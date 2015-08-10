@@ -48,8 +48,7 @@ def create_schema(new_table_name):
 	cursor.execute('''
 		Create table {0}(
 		uid text primary key		not null,
-		lname text 				not null,
-		fname text 				not null,
+		nickname text 				not null,
 		password text			not null
 		);
 		
@@ -58,11 +57,11 @@ def create_schema(new_table_name):
 	end(conn)
 	return jsonify({"message":"new table created."})
 	
-def insert(uid, lname, fname, password):
+def insert(uid, nickname, password):
 	conn = connect()
 	cursor = conn.cursor()
-	query_string = "INSERT INTO user_db (uid,lname,fname,password) \
-      VALUES ('{0}', '{1}', '{2}', '{3}')".format(uid, lname, fname, password)
+	query_string = "INSERT INTO user_db (uid, nickname, password) \
+      VALUES ('{0}', '{1}', '{2}')".format(uid, nickname, password)
 	 
 	verify = select(uid)
 	
@@ -130,3 +129,18 @@ def delete(uid):
 def end(conn):
 		conn.commit()
 		conn.close()
+
+''' for admin purposes only. this function should never be placed permanently under any route. '''
+def _alter_psql_interface():
+	'''
+	conn = connect()
+	cursor = conn.cursor()
+	query_string = "ALTER TABLE {0} DROP COLUMN {1}".format('user_db','fname')
+	cursor.execute(query_string)
+	
+	query_string = "ALTER TABLE {0} RENAME COLUMN {1} to {2}".format('user_db','lname', 'nickname')
+	cursor.execute(query_string)
+	end(conn)
+	'''
+	return jsonify({"message":"schema altered"})
+	
