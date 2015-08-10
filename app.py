@@ -23,9 +23,7 @@ def api_user_control():
 		'''
 		return psqldb.insert(request.args.get('uid'), request.args.get('lname'), request.args.get('fname'), request.args.get('password'))
  	 
-	resp = jsonify({'message':'All fields must have values.'})
-	resp.status_code = 404
-	return resp
+	return jsonify({'message':'All fields must have values.'}), 404
 	
 	
 

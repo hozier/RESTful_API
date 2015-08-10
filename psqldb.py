@@ -44,9 +44,7 @@ def create_schema(new_table_name):
 		if extracted_key(table) == new_table_name:
 			conn.commit()
 			conn.close()
-			resp = jsonify({"message":"table already exists"})
-			resp.status_code = 404
-			return resp
+			return jsonify({"message":"table already exists"}), 404
 	
 	cursor.execute('''
 		Create table {0}(
@@ -78,9 +76,7 @@ def insert(uid, lname, fname, password):
 	else:
 		conn.commit()
 		conn.close()
-		resp = jsonify({"message":"uid already exists"}) #revisit
-		resp.status_code = 404
-		return resp
+		return jsonify({"message":"uid already exists"}), 404
 
 def select(uid):
 	conn = connect()
@@ -117,9 +113,7 @@ def delete(uid):
 	if not verify['users']: # if no user found.
 		conn.commit()
 		conn.close()
-		resp = jsonify({"message":"no rows affected -- user not found"}) 
-		resp.status_code = 404
-		return resp
+		return jsonify({"message":"no rows affected -- user not found"}), 404
 	else:
 		cursor.execute(query_string);
 		conn.commit()
