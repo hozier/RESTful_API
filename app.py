@@ -33,9 +33,7 @@ def response(user_id):
 		api_call = psqldb.select(user_id)
 		for users in api_call:
 			if not api_call[users]:
-				resp = jsonify({"message":"no user found"})
-				resp.status_code = 404
-				return resp
+				return jsonify({"message":"no user found"}), 404
 				
 		return jsonify(api_call)
 	
