@@ -1,5 +1,6 @@
 import os
 import psycopg2
+import psycopg2.extras
 import urlparse
 from flask import jsonify
  
@@ -16,23 +17,22 @@ def connect():
 	)
 	
 	return connect
-
-def extracted_key(raw):
-	import re
-	return " ".join(re.findall("[a-zA-Z_]+", str(raw)))
 	
 def dictionary(values, keys):
-	data = []
 	if not values:
-		data = {}
-	elif len(values[0]) == len(keys):
+		return None
+		
+	data = []	
+	peek = values[0]
+	if len(peek) == len(keys):
+		print "we have values"
 		for row in values:
 			a_user_record = {}
-			for i in range(len(keys)):
-				key = extracted_key(keys[i])
+			for key in keys:
+				key = key["column_name"]
 				if key == 'password':
 					continue
-				a_user_record[key] = row[i]
+				a_user_record[key] = row[key]
 			data.append(a_user_record)
 			
 	return {"users":data}
@@ -75,16 +75,20 @@ def insert(uid, nickname, password):
 		return jsonify({"message":"uid already exists"}), 404
 
 def login(uid, password):
-	user = select(uid)['users'][0]
-	print "within user_db: user: {0}, password: {1}" .format(user["uid"], user['password'])
-	print "from client_side: user: {0}, password: {1}" .format(uid, password)
-	if uid == user["uid"] and user['password'] == password:
+	conn = connect()
+	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+	query_string = "select password from user_db WHERE uid = '{0}'". format(uid) 
+	
+	cursor.execute(query_string)
+	password_db = cursor.fetchall().pop()["password"]
+	
+	if password_db and password_db == password:
 		return jsonify({"message":"user and password verified"})
 	return jsonify({"message":"login unsuccessful"}), 404
 	
 def select(uid):
 	conn = connect()
-	cursor = conn.cursor()
+	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 	query_string = "select * from user_db WHERE uid = '{0}'". format(uid) 
 	cursor.execute(query_string)
 	values = cursor.fetchall()
@@ -98,7 +102,7 @@ def select(uid):
 	
 def list_all():
 	conn = connect()
-	cursor = conn.cursor()
+	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 	query_string = "select * from user_db "
 	cursor.execute(query_string)
 	values = cursor.fetchall()
@@ -126,7 +130,7 @@ def delete(uid):
 def end(conn):
 		conn.commit()
 		conn.close()
-
+	
 ''' for admin purposes only. this function should never be placed permanently under any route. '''
 def _alter_psql_interface():
 	'''

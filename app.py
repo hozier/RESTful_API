@@ -29,10 +29,9 @@ def api_user_control():
 def response(user_id):
 	if request.method == 'GET':
 		api_call = psqldb.select(user_id)
-		for users in api_call:
-			if not api_call[users]:
-				return jsonify({"message":"no user found"}), 404
-				
+
+		if not api_call:
+			return jsonify({"message":"no user found"}), 404
 		return jsonify(api_call)
 	
 	elif request.method == 'DELETE':
