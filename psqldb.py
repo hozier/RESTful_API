@@ -61,30 +61,23 @@ def create_schema(new_table_name):
 	return jsonify({"message":"new table created."})
 	
 def insert(uid, nickname, password):
-	conn = connect()
-	cursor = conn.cursor()
-	query_string = "INSERT INTO user_db (uid, nickname, password) \
-      VALUES ('{0}', '{1}', '{2}')".format(uid, nickname, password)
 	 
 	verify = select(uid)
-	
 	if not verify['users']:
+		conn = connect()
+		cursor = conn.cursor()
+		query_string = "INSERT INTO user_db (uid, nickname, password) \
+      	VALUES ('{0}', '{1}', '{2}')".format(uid, nickname, password)
 		cursor.execute(query_string);
 		end(conn)
 		return jsonify({"message":"new user created"})
 	else:
-		end(conn)
 		return jsonify({"message":"uid already exists"}), 404
 
 def login(uid, password):
-	conn = connect()
-	cursor = conn.cursor()
-	print 
-	if select(uid)['users'][0]["uid"] == uid:
-		if select(uid)['users'][0]['password'] == password:
-			end(conn)
+	user = select(uid)['users'][0]
+	if uid == user["uid"] and user['password'] == password:
 			return jsonify({"message":"user and password verified"})
-	end(conn)
 	return jsonify({"message":"login unsuccessful"}), 404
 	
 def select(uid):
