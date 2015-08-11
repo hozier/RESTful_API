@@ -97,6 +97,7 @@ def select(uid):
 	query_string = "SELECT column_name FROM information_schema.columns WHERE table_name ='user_db'"
 	cursor.execute(query_string)
 	keys = cursor.fetchall()
+	end(conn)
 			
 	return dictionary(values, keys)
 	
@@ -114,17 +115,15 @@ def list_all():
 		
 	return jsonify(dictionary(values, keys))
 	
-def delete(uid):
-	conn = connect()
-	cursor = conn.cursor()
-	query_string = "DELETE from user_db where uid='{0}'". format(uid)
+def delete(uid):	
 	
 	verify = select(uid)
-	
 	if not verify['users']: # if no user found.
-		end(conn)
 		return jsonify({"message":"no rows affected -- user not found"}), 404
 	else:
+		conn = connect()
+		cursor = conn.cursor()
+		query_string = "DELETE from user_db where uid='{0}'". format(uid)
 		cursor.execute(query_string);
 		end(conn)
 		return jsonify({"message":"user deleted"})
