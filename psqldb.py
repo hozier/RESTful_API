@@ -29,7 +29,10 @@ def dictionary(values, keys):
 		for row in values:
 			a_user_record = {}
 			for i in range(len(keys)):
-				a_user_record[extracted_key(keys[i])] = row[i]
+				key = extracted_key(keys[i])
+				if key == 'password':
+					continue
+				a_user_record[key] = row[i]
 			data.append(a_user_record)
 			
 	return {"users":data}
