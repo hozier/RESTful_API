@@ -76,8 +76,10 @@ def insert(uid, nickname, password):
 
 def login(uid, password):
 	user = select(uid)['users'][0]
+	print "within user_db: user: {0}, password: {1}", .format(user["uid"], user['password'])
+	print "from client_side: user: {0}, password: {1}", .format(uid, password)
 	if uid == user["uid"] and user['password'] == password:
-			return jsonify({"message":"user and password verified"})
+		return jsonify({"message":"user and password verified"})
 	return jsonify({"message":"login unsuccessful"}), 404
 	
 def select(uid):
