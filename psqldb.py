@@ -47,8 +47,8 @@ def is_present(uid):
 	collection = {"conn":conn, "boolean":True, "cursor":cursor}
 	query_string = "select uid from user_db WHERE uid = '{0}'". format(uid) 
 	cursor.execute(query_string)
-	json = cursor.fetchall()
-		
+	json = cursor.fetchone()
+	
 	if not json: # if response from query is '[]' -- the empty array, then
 		collection["boolean"] = False
 	return collection
@@ -73,18 +73,18 @@ def login(uid, password):
 	query_string = "select password from user_db WHERE uid = '{0}'". format(uid) 
 	
 	cursor.execute(query_string)
-	password_db = cursor.fetchall().pop()["password"]
+	password_db = cursor.fetchone()
 	
-	if password_db and password_db == password:
-		return jsonify({"message":"user and password verified"})
-	return jsonify({"message":"login unsuccessful"}), 404
+	if not password_db or password_db["password"] != password:
+		return jsonify({"message":"login unsuccessful"}), 404
+	return jsonify({"message":"user and password verified"})
 	
 def select(uid):
 	conn = connect()
 	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 	query_string = "select uid, nickname from user_db WHERE uid = '{0}'". format(uid) 
 	cursor.execute(query_string)
-	json = cursor.fetchall()
+	json = cursor.fetchone()
 	end(conn)
 
 	if not json:
