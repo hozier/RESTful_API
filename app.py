@@ -28,11 +28,7 @@ def api_user_control():
 @app.route('/ios/api/v1/select/<user_id>', methods=['GET', 'DELETE']) 
 def response(user_id):
 	if request.method == 'GET':
-		api_call = psqldb.select(user_id)
-
-		if not api_call:
-			return jsonify({"message":"no user found"}), 404
-		return jsonify(api_call)
+		return psqldb.select(user_id)
 	
 	elif request.method == 'DELETE':
 		return psqldb.delete(user_id)

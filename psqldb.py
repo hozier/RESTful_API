@@ -17,36 +17,16 @@ def connect():
 	)
 	
 	return connect
-	
-def dictionary(values, keys):
-	if not values:
-		return None
 		
-	data = []	
-	peek = values[0]
-	if len(peek) == len(keys):
-		print "we have values"
-		for row in values:
-			a_user_record = {}
-			for key in keys:
-				key = key["column_name"]
-				if key == 'password':
-					continue
-				a_user_record[key] = row[key]
-			data.append(a_user_record)
-			
-	return {"users":data}
-	
-	
 ''' overview: returns cursor object'''
 def create_schema(new_table_name):
 	conn = connect()
-	cursor = conn.cursor() 
+	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
 	cursor.execute("SELECT table_name FROM information_schema.tables WHERE table_schema='public'") # lists just the table(s) that the admin creates.
-	for table in cursor.fetchall():
-		if extracted_key(table) == new_table_name:
-			end(conn)
-			return jsonify({"message":"table already exists"}), 404
+	
+	if new_table_name == cursor.fetchone()['table_name']:
+		end(conn)
+		return jsonify({"message":"table already exists"}), 404
 	
 	cursor.execute('''
 		Create table {0}(
@@ -59,19 +39,32 @@ def create_schema(new_table_name):
 	
 	end(conn)
 	return jsonify({"message":"new table created."})
-	
+
+def is_present(uid):
+	conn = connect()
+	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+	collection = {"conn":conn, "boolean":True, "cursor":cursor}
+	query_string = "select uid from user_db WHERE uid = '{0}'". format(uid) 
+	cursor.execute(query_string)
+	json = cursor.fetchall()
+		
+	if not json: # if response from query is '[]' -- the empty array, then
+		collection["boolean"] = False
+	return collection
+
+
 def insert(uid, nickname, password):
-	 
-	verify = select(uid)
-	if not verify['users']:
-		conn = connect()
-		cursor = conn.cursor()
+	
+	verify = is_present(uid)
+	if verify['boolean'] == False:
 		query_string = "INSERT INTO user_db (uid, nickname, password) \
       	VALUES ('{0}', '{1}', '{2}')".format(uid, nickname, password)
-		cursor.execute(query_string);
-		end(conn)
+		verify["cursor"].execute(query_string);
+		end(verify["conn"])
 		return jsonify({"message":"new user created"})
+		
 	else:
+		end(verify["conn"])
 		return jsonify({"message":"uid already exists"}), 404
 
 def login(uid, password):
@@ -89,42 +82,38 @@ def login(uid, password):
 def select(uid):
 	conn = connect()
 	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-	query_string = "select * from user_db WHERE uid = '{0}'". format(uid) 
+	query_string = "select uid, nickname from user_db WHERE uid = '{0}'". format(uid) 
 	cursor.execute(query_string)
-	values = cursor.fetchall()
-
-	query_string = "SELECT column_name FROM information_schema.columns WHERE table_name ='user_db'"
-	cursor.execute(query_string)
-	keys = cursor.fetchall()
+	json = cursor.fetchall()
 	end(conn)
-			
-	return dictionary(values, keys)
+
+	if not json:
+		return jsonify({"message":"no user found"}), 404
+	return jsonify({"user":json})
+	
 	
 def list_all():
 	conn = connect()
 	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-	query_string = "select * from user_db "
+	query_string = "select uid, nickname from user_db "
 	cursor.execute(query_string)
-	values = cursor.fetchall()
-	
-	query_string = "SELECT column_name FROM information_schema.columns WHERE table_name ='user_db'"
-	cursor.execute(query_string)
-	keys = cursor.fetchall()
+	json = cursor.fetchall()
 	end(conn)	
 		
-	return jsonify(dictionary(values, keys))
+	if not json:
+		return jsonify({"message":"user_db is empty"}), 404
+	return jsonify({"users":json})
+	
 	
 def delete(uid):	
 	
-	verify = select(uid)
-	if not verify['users']: # if no user found.
+	verify = is_present(uid) 
+	if verify['boolean'] == False: # if user is not present
 		return jsonify({"message":"no rows affected -- user not found"}), 404
 	else:
-		conn = connect()
-		cursor = conn.cursor()
 		query_string = "DELETE from user_db where uid='{0}'". format(uid)
-		cursor.execute(query_string);
-		end(conn)
+		verify["cursor"].execute(query_string);
+		end(verify["conn"])
 		return jsonify({"message":"user deleted"})
 
 def end(conn):
@@ -138,7 +127,7 @@ def _alter_psql_interface():
 	cursor = conn.cursor()
 	query_string = "ALTER TABLE {0} DROP COLUMN {1}".format('user_db','fname')
 	cursor.execute(query_string)
-	
+	# query_string = "SELECT column_name FROM information_schema.columns WHERE table_name ='user_db'"
 	query_string = "ALTER TABLE {0} RENAME COLUMN {1} to {2}".format('user_db','lname', 'nickname')
 	cursor.execute(query_string)
 	end(conn)
