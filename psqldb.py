@@ -3,6 +3,7 @@ import psycopg2
 import psycopg2.extras
 import urlparse
 from flask import jsonify
+from psycopg2.extensions import adapt
  
 def connect():
 	os.environ["DATABASE_URL"] = "postgres://ehaxtcxuugahlv:6vv92WKuRCvNV6-1gMHlbbeOMM@ec2-54-83-10-210.compute-1.amazonaws.com:5432/d5cd7ej8t9fbns"
@@ -54,11 +55,11 @@ def is_present(uid):
 
 
 def insert(uid, nickname, password):
-	
+	print "this is user input: ", password
 	verify = is_present(uid)
 	if verify['boolean'] == False:
-		query_string = "INSERT INTO user_db (uid, nickname, password) \
-      	VALUES ('{0}', '{1}', '{2}')".format(uid, nickname, password)
+		query_string = """INSERT INTO user_db (uid, nickname, password) \
+      	VALUES ({0}, {1}, {2})""".format(adapt(uid), adapt(nickname), adapt(password))
 		verify["cursor"].execute(query_string);
 		end(verify["conn"])
 		return jsonify({"message":"new user created"})
