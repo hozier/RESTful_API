@@ -55,7 +55,6 @@ def is_present(uid):
 
 
 def insert(uid, nickname, password):
-	print "this is user input: ", password
 	verify = is_present(uid)
 	if verify['boolean'] == False:
 		query_string = """INSERT INTO user_db (uid, nickname, password) \
