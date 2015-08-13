@@ -70,14 +70,16 @@ def insert(uid, nickname, password):
 def login(uid, password):
 	conn = connect()
 	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-	query_string = "select password from user_db WHERE uid = '{0}'". format(uid) 
+	query_string = "select * from user_db WHERE uid = '{0}'". format(uid) 
 	
 	cursor.execute(query_string)
-	password_db = cursor.fetchone()
+	selected_user = cursor.fetchone()
 	
-	if not password_db or password_db["password"] != password:
-		return jsonify({"message":"login unsuccessful"}), 404
-	return jsonify({"message":"user and password verified"})
+	if selected_user and selected_user["password"] == password:
+		selected_user.pop("password", None) # keep server side password client side
+		return jsonify({"message":"user and password verified", 
+						"user":selected_user}) 
+	return jsonify({"message":"login unsuccessful"}), 404
 	
 def select(uid):
 	conn = connect()
