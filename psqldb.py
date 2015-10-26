@@ -82,22 +82,20 @@ def make_note(uid, note):
 def update_note_metric(note_id, tag):
 	conn = connect()
 	cursor = conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-	query_string = "select note_id from note_metrics WHERE note_id = '{0}'". format(note_id)
+	query_string = "select * from note_metrics where note_id = {0}". format(note_id)
 	cursor.execute(query_string)
 	note = cursor.fetchone()
-
 	new_up = 0
 	new_down = 0
-	if tag == 200:
+
+	if int(tag) == 200:
 		if note["down"] == 1:
 			new_down = note["down"] - 1
-	elif tag == 201:
-		if(note["up"] == 0):
+	elif int(tag) == 201:
+		if note["up"] == 0:
 			new_up = note["up"] + 1
 
-	query_string = """UPDATE note_metrics set down = {0}, \
-					set up = {1} where note_id = {2}""" \
-					.format(new_down, new_up, note_id)
+	query_string = """update note_metrics set down = {0}, up = {1} where note_id = '{2}'""".format(new_down, new_up, note_id)
 	cursor.execute(query_string)
 	end(conn)
 	return jsonify({"message":"up: {0}, down: {1},\
